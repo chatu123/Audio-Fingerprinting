@@ -16,3 +16,30 @@ hashtable = cell(hashTableSize,2); %
 end
 end
 songIndex = length(songid); % This becomes the song ID number.
+someNewSongs = 0;
+for i = 1:length(songs)
+songFound = 0;
+for m = 1:length(songid)
+if strcmp(songs{i},songid{m})
+songFound = 1;
+break;
+end
+end
+if ~songFound
+someNewSongs = 1;
+songIndex = songIndex + 1;
+filename = strcat(dir, filesep, songs{i});
+[sound,fs] = audioread(filename);
+% Use fingerprint.m, convert_to_pairs.m, and add_to_table.m
+peaks = fingerprint(sound,fs);
+tuple = convert_to_pairs(peaks);
+maxCollisions = add_to_table(tuple, songIndex);
+songid{songIndex,1} = songs{i};
+end
+end
+global numSongs
+numSongs = songIndex;
+if someNewSongs
+save('SONGID.mat', 'songid');
+save('HASHTABLE.mat', 'hashtable');
+end
